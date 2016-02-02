@@ -5,3 +5,47 @@ library(ggmap)
 library(plyr)
 
 tag_db<-read.table("turbot archival tags.txt", sep= ",", header=FALSE, col.names= c("tag_num","tag_type","timestamp","depth","temp"))
+
+#what do the data look like?
+head(tag_db)
+
+
+#what is the underlying structure of the variables?
+str(tag_db)
+
+#  'data.frame':	3138255 obs. of  5 variables:
+#  $ tag_num  : int  386 386 386 386 386 386 386 386 386 386 ...
+#  $ tag_type : Factor w/ 1 level "GG": 1 1 1 1 1 1 1 1 1 1 ...
+#  $ timestamp: Factor w/ 3138255 levels "1/1/2012 0:00:01",..: 2140927 2140931 2140935 2140939 2140943 2140947 2140951 2140955 2140959 2140963 ...
+#  $ depth    : num  1270 1273 1273 1265 1267 ...
+#  $ temp     : num  1181 1181 1181 1181 1181 ...
+ 
+# Problem: timestamp is a factor (structured the same as if each diff time was a diff color), it is not numeric and cannot be subsetted, or analyzed as such
+
+# Solution: convert to date and time with lubridate. Here I create a new column called date_time that converts the timestamp to posixct
+
+tag_db$date_time<-mdy_hms(tag_db$timestamp, tz="America/Anchorage")  ***This accounts for DST 
+tag_db$date_time[1]
+  # "2011-06-26 01:12:25 AKDT"   * this date is during DST so it is AKDT instead of AKST
+  
+  #What if your tag data was given to you in UTC but your tide and daylight information is in AK time
+ tag_db$date_timeUTC<-mdy_hms(tag_db$timestamp, tz="UTC") 
+tag_db$date_timeAK<-with_tz(tag_db$date_timeUTC, "America/Anchorage")
+  head(tag_db)
+  
+  Check your work:
+> tag_db$date_timeUTC[1]-tag_db$date_timeAK[1]
+  Time difference of 0 secs
+> tag_db$date_timeUTC[1]-tag_db$date_time[1]
+  Time difference of -8 hours
+
+# subset by time of day: using the lubridate function 'hour()' within the subset function
+subset_midday<-subset(tag_db,hour(date_time) > 11 & hour(date_time) < 13)
+
+#or by two dates, June 26 2011 until the end of the year
+subset_date<-subset(tag_db, date_time > "2011-06-26 00:00:00" & date_time < "2012-01-01 00:00:00")
+
+#adding hourly time bins
+tag_db$time_bin<-trunc(tag_db$date_time,"hours") # puts everyting in hourly time bins, could say minutes
+
+
