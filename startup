@@ -1,7 +1,6 @@
 
 library(lubridate)
 library(ggplot2)
-library(ggmap)
 library(plyr)
 
 tag_db<-read.table("turbot archival tags.txt", sep= ",", header=FALSE, col.names= c("tag_num","tag_type","timestamp","depth","temp"))
