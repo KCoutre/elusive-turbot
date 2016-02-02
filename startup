@@ -29,15 +29,15 @@ tag_db$date_time[1]
   # "2011-06-26 01:12:25 AKDT"   * this date is during DST so it is AKDT instead of AKST
   
   #What if your tag data was given to you in UTC but your tide and daylight information is in AK time
- tag_db$date_timeUTC<-mdy_hms(tag_db$timestamp, tz="UTC") 
+tag_db$date_timeUTC<-mdy_hms(tag_db$timestamp, tz="UTC") 
 tag_db$date_timeAK<-with_tz(tag_db$date_timeUTC, "America/Anchorage")
   head(tag_db)
   
   Check your work:
-> tag_db$date_timeUTC[1]-tag_db$date_timeAK[1]
-  Time difference of 0 secs
-> tag_db$date_timeUTC[1]-tag_db$date_time[1]
-  Time difference of -8 hours
+ tag_db$date_timeUTC[1]-tag_db$date_timeAK[1]
+  # Time difference of 0 secs
+ tag_db$date_timeUTC[1]-tag_db$date_time[1]
+  # Time difference of -8 hours
 
 # subset by time of day: using the lubridate function 'hour()' within the subset function
 subset_midday<-subset(tag_db,hour(date_time) > 11 & hour(date_time) < 13)
@@ -48,4 +48,7 @@ subset_date<-subset(tag_db, date_time > "2011-06-26 00:00:00" & date_time < "201
 #adding hourly time bins
 tag_db$time_bin<-trunc(tag_db$date_time,"hours") # puts everyting in hourly time bins, could say minutes
 
+# Plotting one tag from the date subset of July through December of 2011
+ f386_2011<-subset(subset_date,tag_num==386)
+ ggplot(f386_2011, aes(date_time,-depth))+geom_point()
 
