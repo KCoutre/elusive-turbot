@@ -1,0 +1,20 @@
+#start with 1 data frame with fish detections (can be 1 fish or all combined) and 1 data frame of daylight information for corresponding dates
+# Append diel period information to each fish detection record
+
+df_with_diel<-merge(df,diel,by.x="Date",by.y="Date",all=TRUE,sort=FALSE)
+
+#check this merged df (head, str, table, ..etc), are there any NAs? Why? maybe a detection didn't have a date/time...
+df_with_diel<-na.omit(df_with_diel)
+
+# assign diel period to each detection
+  #create column for diel period:
+df_with_diel$Diel.Period<-NA
+
+  # assign a diel period of night, dawn, day, dusk to each time period..(or just night and day if not doing crepuscular)
+  
+df_with_diel[df_with_diel$Time < df_with_diel$Nautical.Dawn,"Diel.Period"] <- "Night"
+df_with_diel[df_with_diel$Time >= df_with_diel$Nautical.Dawn & df_with_diel$Time < df_with_diel$Sunrise,"Diel.Period"] <- "Dawn"
+df_with_diel[df_with_diel$Time >= df_with_diel$Sunrise & df_with_diel$Time < df_with_diel$Sunset,"Diel.Period"] <- "Day"
+df_with_diel[df_with_diel$Time >= df_with_diel$Sunset & df_with_diel$Time < df_with_diel$Nautical.Dusk,"Diel.Period"] <- "Dusk"
+df_with_diel[is.na(df_with_diel$Diel.Period),"Diel.Period"] <- "Night"
+
