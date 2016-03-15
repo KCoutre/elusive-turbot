@@ -1,5 +1,9 @@
+
+
 #start with 1 data frame with fish detections (can be 1 fish or all combined) and 1 data frame of daylight information for corresponding dates
-# Append diel period information to each fish detection record
+# source for diel data: http://aa.usno.navy.mil/data/docs/Dur_OneYear.php
+
+# Append diel period information to each fish detection record using 'merge' function 
 
 df_with_diel<-merge(df,diel,by.x="Date",by.y="Date",all=TRUE,sort=FALSE)
 
